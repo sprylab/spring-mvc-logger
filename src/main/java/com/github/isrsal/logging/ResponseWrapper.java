@@ -19,7 +19,6 @@
 package com.github.isrsal.logging;
 
 import org.apache.commons.io.output.TeeOutputStream;
-import org.springframework.mock.web.DelegatingServletOutputStream;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletResponse;

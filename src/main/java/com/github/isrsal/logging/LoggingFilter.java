@@ -20,6 +20,7 @@ package com.github.isrsal.logging;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.*;
@@ -33,7 +34,7 @@ public class LoggingFilter extends OncePerRequestFilter {
     protected static final Logger logger = LoggerFactory.getLogger(LoggingFilter.class);
     private static final String REQUEST_PREFIX = "Request: ";
     private static final String RESPONSE_PREFIX = "Response: ";
-    private AtomicLong id = new AtomicLong(1);
+    private AtomicLong id = new AtomicLong(0);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -56,7 +57,7 @@ public class LoggingFilter extends OncePerRequestFilter {
     }
 
     private void logRequest(HttpServletRequest request) {
-        StringBuilder msg = new StringBuilder();
+        final StringBuilder msg = new StringBuilder();
         msg.append(REQUEST_PREFIX);
         if(request instanceof RequestWrapper){
             msg.append("request id=").append(((RequestWrapper)request).getId()).append("; ");
@@ -65,9 +66,11 @@ public class LoggingFilter extends OncePerRequestFilter {
         if (session != null) {
             msg.append("session id=").append(session.getId()).append("; ");
         }
-        msg.append("content type=").append(request.getContentType()).append("; ");
         msg.append("uri=").append(request.getRequestURI());
-        msg.append('?').append(request.getQueryString());
+        if (StringUtils.hasText(request.getQueryString())) {
+            msg.append('?').append(request.getQueryString());
+        }
+        msg.append("content type=").append(request.getContentType()).append("; ");
 
         if(request instanceof RequestWrapper && !isMultipart(request)){
             RequestWrapper requestWrapper = (RequestWrapper) request;
@@ -88,7 +91,7 @@ public class LoggingFilter extends OncePerRequestFilter {
     }
 
     private void logResponse(ResponseWrapper response) {
-        StringBuilder msg = new StringBuilder();
+        final StringBuilder msg = new StringBuilder();
         msg.append(RESPONSE_PREFIX);
         msg.append("request id=").append((response.getId()));
         try {
